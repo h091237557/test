@@ -3,20 +3,22 @@ var  Lmv = require('view-and-data'),
   path = require('path');
   
 var config = {
-  defaultBucketKey: 'adn-bucket',
+  defaultBucketKey: 'bimgo',
 
   credentials: {
-    ConsumerKey: "qP37uo9gUNSccJep71cproPHfTN988js ", // use env variables or replace by consumer key
-    ConsumerSecret: "K77ac4NkGeJq40HN" // use env variables or replace by consumer secret
+    ConsumerKey: "", // use env variables or replace by consumer key
+    ConsumerSecret: "" // use env variables or replace by consumer secret
   }
 };
 
   var urn = '';
+  
+  
 (function(){
-	var lmv = new Lmv(config);
-  console.log(lmv);
+   var lmv = new Lmv(config);
+
     function onError(error) {
-    
+      console.log(error);
     }
 
     function onInitialized(response) {
@@ -39,7 +41,7 @@ var config = {
     function onBucketCreated(response) {
 
       lmv.upload(
-        path.join("", 'data/test.dwf'),
+        path.join(__dirname, 'data/test.dwf'),
         config.defaultBucketKey,
         'test.dwf').then(onUploadCompleted, onError);
 
@@ -75,7 +77,7 @@ var config = {
     function onRegister(response) {
 
       if (response.Result === "Success") {
-
+        
         console.log('Translating file...');
 
         lmv.checkTranslationStatus(
@@ -85,7 +87,7 @@ var config = {
             onError);
       }
       else {
-       
+        
       }
     }
 
@@ -102,12 +104,59 @@ var config = {
     }
 
     function onThumbnail(response) {
-
-      
+      donwload();
+     
     }
 
     //start the test
     lmv.initialize().then(onInitialized, onError);
-	
-	
-})();
+  
+})();  
+  
+function donwload() {
+  
+  var lmv = new Lmv(config);
+
+    function onError(error) {
+      console.log(error);
+    }
+
+    function onInitialized(response) {
+
+      if(!urn.length) {
+
+        return;
+      }
+
+      lmv.download(urn, 'data/download').then(
+        onDataDownloaded,
+        onError
+      );
+    }
+
+    function onDataDownloaded(items) {
+
+      console.log('Model downloaded successfully');
+
+      var path3d = items.filter(function(item){
+        return item.type === '3d';
+      });
+
+      console.log('3D Viewable path:');
+      console.log(path3d);
+
+      var path2d = items.filter(function(item){
+        return item.type === '2d';
+      });
+
+      console.log('2D Viewable path:');
+      console.log(path2d);
+
+   
+    }
+
+    //start the test
+    lmv.initialize().then(onInitialized, onError);
+  
+  
+};
